@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17100d">
+<title>Our Book</title>
+<style>
+:root{--ink:#f6e8c9;--gold:#d7ad58;--dark:#17100d;--paper:#ead9b6;--paper2:#d9c49d}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 40%,#493326,#17100d 75%);color:var(--ink);font-family:Georgia,serif;overflow-x:hidden}
+.intro{position:fixed;inset:0;z-index:20;background:#050505;display:grid;place-items:center;animation:introOut 1.2s ease 3.2s forwards}
+.intro span{font-size:clamp(26px,6vw,54px);letter-spacing:.08em;opacity:0;animation:welcome 2.6s ease forwards;text-align:center;padding:20px}
+@keyframes welcome{0%{opacity:0;letter-spacing:.22em}35%,70%{opacity:1}100%{opacity:0;letter-spacing:.08em}}
+@keyframes introOut{to{opacity:0;visibility:hidden;pointer-events:none}}
+header{position:fixed;z-index:10;top:14px;right:14px;display:flex;gap:10px}
+.round{width:48px;height:48px;border-radius:50%;border:1px solid #f2d38c;background:linear-gradient(145deg,#f0d28a,#a87525);color:#24180d;font: bold 28px Georgia;box-shadow:0 5px 18px #0009;cursor:pointer}
+.round:disabled{opacity:.4;cursor:not-allowed}
+.auth{max-width:420px;margin:8vh auto 20px;padding:24px;background:#211811ee;border:1px solid #a9854e;border-radius:14px;box-shadow:0 20px 55px #0008}
+h1,h2{text-align:center;font-weight:normal;letter-spacing:.08em}h1{font-size:34px;margin:0 0 8px}p{line-height:1.5}.muted{color:#c8b99d;font-size:14px}
+input,button.action{font:16px Georgia;border-radius:8px;padding:12px;width:100%;margin:7px 0}
+input{border:1px solid #9b8055;background:#f4ead7;color:#24180d}
+button.action{border:0;background:linear-gradient(145deg,#e5c47c,#a87931);color:#21170d;cursor:pointer}
+.status{min-height:22px;color:#f0d18d;font-size:14px}
+.stage{padding:95px 12px 40px;display:none;min-height:100vh;align-items:center;flex-direction:column;gap:20px}
+.book{position:relative;width:min(940px,96vw);min-height:540px;display:grid;grid-template-columns:1fr 1fr;perspective:1600px;filter:drop-shadow(0 22px 24px #0009)}
+.page{background:linear-gradient(100deg,#d4bf96,#f1e4c8 12%,#e8d8b5 90%,#c9b187);color:#352719;padding:24px;min-height:540px;position:relative;box-shadow:inset 0 0 22px #70552c33}
+.page.left{border-radius:8px 0 0 8px}.page.right{border-radius:0 8px 8px 0}
+.page:after{content:"";position:absolute;top:0;bottom:0;width:12px;right:0;background:linear-gradient(90deg,#765d3b33,#fff4,#765d3b22)}
+.page.right:after{right:auto;left:0}
+.spine{position:absolute;z-index:2;top:0;bottom:0;left:50%;width:18px;transform:translateX(-50%);background:linear-gradient(90deg,#5a3a20,#24160e 40%,#6b4928 70%,#3a2417);box-shadow:0 0 12px #0007}
+.cover{position:absolute;inset:0;z-index:3;border:3px solid #9a7137;border-radius:10px;background:repeating-linear-gradient(4deg,#2a1710 0 3px,#3c2418 4px 7px,#2b1911 8px 11px);box-shadow:inset 0 0 0 7px #17100d,inset 0 0 0 9px #b68a48,0 10px 30px #0008;display:flex;align-items:center;justify-content:center;flex-direction:column;transform-origin:left;transition:transform 1.7s cubic-bezier(.2,.7,.15,1);backface-visibility:hidden}
+.cover:before{content:"";position:absolute;inset:18px;border:1px solid #c69a54;border-radius:5px;box-shadow:inset 0 0 0 5px #2a1710,inset 0 0 0 6px #9c7139}
+.cover:after{content:"";position:absolute;inset:34px;border:1px solid #8e642e;border-radius:3px}
+.cover h2{z-index:1;color:#e6c47e;font-size:clamp(30px,6vw,56px);text-shadow:0 2px 4px #000;margin:0}.cover small{z-index:1;color:#d9b66f;letter-spacing:.25em;margin-top:14px}
+.book.open .cover{transform:rotateY(-178deg)}
+.memory{position:relative;margin:8px auto 0;width:100%;height:390px;display:flex;align-items:center;justify-content:center}
+.memory img,.memory video{max-width:100%;max-height:360px;object-fit:contain;border:8px solid #f7edda;box-shadow:0 5px 14px #49331e55;background:#eee}
+.tape{position:absolute;top:0;left:50%;transform:translateX(-50%) rotate(-3deg);width:90px;height:23px;background:#d7c18b99;border:1px solid #b39a64aa}
+.caption{text-align:center;font-style:italic;font-size:20px;margin:12px 0}
+.empty{text-align:center;margin-top:120px;font-style:italic;color:#806b4b}
+.controls{display:flex;gap:14px;align-items:center}.controls button{width:auto;min-width:90px}
+#filePicker{display:none}.hidden{display:none!important}
+@media(max-width:650px){.book{min-height:430px}.page{min-height:430px;padding:12px}.memory{height:300px}.memory img,.memory video{max-height:270px}.page h2{font-size:20px}.auth{margin:8vh 14px 20px}}
+</style>
+</head>
+<body>
+<div class="intro" id="intro"><span>Welcome to our book</span></div>
+<header id="toolbar" class="hidden">
+<button class="round" id="addBtn" title="Herinnering toevoegen">+</button>
+<button class="round" id="removeBtn" title="Huidige herinnering verwijderen">−</button>
+<button class="round" id="logoutBtn" title="Uitloggen" style="font-size:17px">↪</button>
+</header>
+<section class="auth" id="authPanel">
+<h1>Our Book</h1><p class="muted" style="text-align:center">Log in om jullie gedeelde album te openen.</p>
+<input id="email" type="email" placeholder="E-mailadres" autocomplete="username">
+<input id="password" type="password" placeholder="Wachtwoord" autocomplete="current-password">
+<button class="action" id="loginBtn">Inloggen</button>
+<div class="status" id="authStatus"></div>
+<p class="muted">Gebruik het account dat via de uitnodiging is aangemaakt. Deel je wachtwoord met niemand.</p>
+</section>
+<main class="stage" id="stage">
+<div class="book" id="book">
+<section class="page left"><h2>Our memories</h2><div id="leftMemory"></div></section>
+<section class="page right"><h2>Always together</h2><div id="rightMemory"></div></section>
+<div class="spine"></div><div class="cover" id="cover"><h2>Our Book</h2><small>A BOOK OF MEMORIES</small></div>
+</div>
+<div class="controls"><button class="action" id="prevBtn">← Vorige</button><span id="pageCount" class="muted">0 herinneringen</span><button class="action" id="nextBtn">Volgende →</button></div>
+<p class="muted">Tik op + om een herinnering toe te voegen. Selecteer een herinnering en tik op − om die te verwijderen.</p>
+</main>
+<input id="filePicker" type="file" accept="image/*,video/*" multiple>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* Vul hieronder je eigen Supabase Project URL en Publishable key in.
+   Gebruik NOOIT een secret/service_role key in deze website. */
+const SUPABASE_URL ="https://vnlnjihxrlcnunevzcuf.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_3U0GdtyxtDAwWYHhpOsuRg_9AncVBzu";
+const BUCKET = "our-book-media";
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let memories = [], pageIndex = 0, selectedId = null, opened = false;
+const $ = id => document.getElementById(id);
+function status(message){$("authStatus").textContent=message}
+function configured(){
+  return SUPABASE_URL.startsWith("https://") &&
+         SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_");
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+async function login(){
+ if(!configured()){status("De Supabase-gegevens moeten eerst in het HTML-bestand worden ingevuld.");return}
+ const email=$("email").value.trim(), password=$("password").value;
+ if(!email||!password){status("Vul je e-mailadres en wachtwoord in.");return}
+ status("Even aanmelden…");
+ const {error}=await client.auth.signInWithPassword({email,password});
+ if(error){status(error.message);return}
+ await showAlbum();
+}
+async function showAlbum(){
+ $("authPanel").classList.add("hidden");$("toolbar").classList.remove("hidden");$("stage").style.display="flex";
+ await loadMemories();
+ setTimeout(()=>{$("book").classList.add("open");opened=true},450);
+}
+async function loadMemories(){
+ const {data,error}=await client.from("memories").select("*").order("created_at",{ascending:true});
+ if(error){alert("Kan herinneringen niet laden: "+error.message);return}
+ memories=data||[]; if(pageIndex>Math.max(0,memories.length-1))pageIndex=0;render();
+}
+async function signedUrl(path){
+ const {data,error}=await client.storage.from(BUCKET).createSignedUrl(path,3600);
+ if(error) return "";return data.signedUrl;
+}
+async function card(item){
+ const url=await signedUrl(item.file_path); if(!url)return `<p class="empty">Bestand niet beschikbaar</p>`;
+ const media=item.media_type==="video"?`<video controls playsinline src="${url}"></video>`:`<img src="${url}" alt="${escapeHtml(item.title)}">`;
+ return `<div class="memory" data-id="${item.id}"><span class="tape"></span>${media}</div><div class="caption">${escapeHtml(item.title||"Een mooie herinnering")}</div>`;
+}
+async function render(){
+ const left=memories[pageIndex],right=memories[pageIndex+1];
+ $("leftMemory").innerHTML=left?await card(left):'<p class="empty">Jullie verhaal begint hier…</p>';
+ $("rightMemory").innerHTML=right?await card(right):'<p class="empty">Voeg jullie eerste herinnering toe met +</p>';
+ $("pageCount").textContent=memories.length+" herinnering(en) · "+(memories.length?Math.floor(pageIndex/2)+1:0);
+ $("prevBtn").disabled=pageIndex===0;$("nextBtn").disabled=pageIndex+2>=memories.length;
+ document.querySelectorAll(".memory").forEach(el=>el.addEventListener("click",()=>{selectedId=el.dataset.id;document.querySelectorAll(".memory").forEach(x=>x.style.outline="");el.style.outline="3px solid #ad762a"}));
+}
+$("loginBtn").onclick=login;
+$("password").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
+$("addBtn").onclick=()=>$("filePicker").click();
+$("filePicker").onchange=async e=>{
+ const files=[...e.target.files];if(!files.length)return;
+ for(const file of files){
+  const title=prompt("Welke naam geef je deze herinnering?",file.name.replace(/\.[^.]+$/,""));
+  if(title===null)continue;
+  const ext=(file.name.split(".").pop()||"bin").toLowerCase();
+  const path=crypto.randomUUID()+"."+ext;
+  const {error:uploadError}=await client.storage.from(BUCKET).upload(path,file,{upsert:false,contentType:file.type});
+  if(uploadError){alert("Upload mislukt: "+uploadError.message);continue}
+  const media_type=file.type.startsWith("video/")?"video":"image";
+  const {error:insertError}=await client.from("memories").insert({title:title.trim()||"Herinnering",file_path:path,media_type});
+  if(insertError){await client.storage.from(BUCKET).remove([path]);alert("Opslaan mislukt: "+insertError.message)}
+ }
+ e.target.value="";pageIndex=Math.max(0,memories.length-2);await loadMemories();
+};
+$("removeBtn").onclick=async()=>{
+ if(!selectedId){alert("Tik eerst op de foto of video die je wilt verwijderen.");return}
+ const item=memories.find(x=>String(x.id)===String(selectedId));if(!item)return;
+ if(!confirm("Deze herinnering definitief uit het gedeelde album verwijderen?"))return;
+ const {error:deleteError}=await client.from("memories").delete().eq("id",item.id);
+ if(deleteError){alert("Verwijderen mislukt: "+deleteError.message);return}
+ const {error:storageError}=await client.storage.from(BUCKET).remove([item.file_path]);
+ if(storageError)alert("De herinnering is uit het album, maar het bestand kon niet volledig worden verwijderd: "+storageError.message);
+ selectedId=null;await loadMemories();
+};
+$("prevBtn").onclick=()=>{pageIndex=Math.max(0,pageIndex-2);selectedId=null;render()};
+$("nextBtn").onclick=()=>{pageIndex=Math.min(Math.max(0,memories.length-2),pageIndex+2);selectedId=null;render()};
+$("logoutBtn").onclick=async()=>{await client.auth.signOut();$("stage").style.display="none";$("toolbar").classList.add("hidden");$("authPanel").classList.remove("hidden");$("book").classList.remove("open");status("Je bent uitgelogd.")};
+client.auth.onAuthStateChange((_event,session)=>{if(session && !$("stage").style.display)showAlbum()});
+window.addEventListener("load",()=>{setTimeout(()=>$("intro").remove(),4400)});
+</script>
+</body></html>
