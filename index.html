@@ -105,7 +105,8 @@ async function loadMemories(){
 }
 async function signedUrl(path){
  const {data,error}=await client.storage.from(BUCKET).createSignedUrl(path,3600);
- if(error) return "";return data.signedUrl;
+if(error){console.error("SIGNED URL ERROR:",error);alert("Foto-link mislukt: "+error.message);return "";}
+return data?.signedUrl || "";
 }
 async function card(item){
  const url=await signedUrl(item.file_path); if(!url)return `<p class="empty">Bestand niet beschikbaar</p>`;
