@@ -1,4 +1,4 @@
-<!doctype html>
+	<!doctype html>
 <html lang="nl">
 <head>
 <meta charset="utf-8">
@@ -131,7 +131,7 @@ $("filePicker").onchange=async e=>{
   const ext=(file.name.split(".").pop()||"bin").toLowerCase();
   const path=crypto.randomUUID()+"."+ext;
   const {error:uploadError}=await client.storage.from(BUCKET).upload(path,file,{upsert:false,contentType:file.type});
-  if(uploadError){alert("Upload mislukt: "+uploadError.message);continue}
+ if(uploadError){alert(JSON.stringify(uploadError,null,2));continue}
   const media_type=file.type.startsWith("video/")?"video":"image";
   const {error:insertError}=await client.from("memories").insert({title:title.trim()||"Herinnering",file_path:path,media_type});
   if(insertError){await client.storage.from(BUCKET).remove([path]);alert("Opslaan mislukt: "+insertError.message)}
